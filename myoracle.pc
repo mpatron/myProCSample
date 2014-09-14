@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <string.h>
+#include <signal.h>
+#include <stdlib.h>
+
+#define ORA_STD_LENTH 30+1
+#define ORA_STR_COPY(x,y)	\
+	if(strlen(y)>ORA_STD_LENTH) {	\
+		strncpy ((char*)x.arr, y, ORA_STD_LENTH);	\
+		x.arr[ORA_STD_LENTH]=0;	\
+		x.len = ORA_STD_LENTH;	\
+	} else {	\
+		strncpy ((char*)x.arr, y, strlen(y));	\
+		x.arr[strlen(y)]=0;	\
+		x.len = (unsigned short) strlen(y);	\
+	}
+
+#define CHECK_ERROR_OR_EXIT() chechErrorAndExit(__FILE__, __LINE__)
+	
+EXEC SQL INCLUDE SQLCA;
+
+void myOracleHandler(int signum) {
+	if (signum == SIGUSR1) {
+		EXEC SQL ROLLBACK;
+		exit(EXIT_FAILURE );
+    }
+}
+
+void chechErrorAndExit(const char* fileName, const int fileLine) {
+	if(sqlca.sqlcode!=0) {
+		char msg[200];
+		strncpy(msg, sqlca.sqlerrm.sqlerrmc, sqlca.sqlerrm.sqlerrml);   /* note use of pointers */
+		msg[sqlca.sqlerrm.sqlerrml]=0;
+		fprintf(stderr, "Internal error: msg=%s file=%s line=%d\n", msg, fileName, fileLine); 	
+		raise(SIGUSR1);
+	}
+}
+ 
+int myoracle(const char* username, const char* password, const char* dbname) {
+	signal(SIGUSR1, myOracleHandler);
+	
+	EXEC SQL BEGIN DECLARE SECTION;
+	VARCHAR	myUserId[ORA_STD_LENTH];
+	VARCHAR	myPassword[ORA_STD_LENTH];
+	VARCHAR	myDBName[ORA_STD_LENTH];
+    char message[ORA_STD_LENTH];
+    EXEC SQL END DECLARE SECTION;
+	
+	
+	ORA_STR_COPY(myUserId,username);
+	ORA_STR_COPY(myPassword,password);
+	ORA_STR_COPY(myDBName,dbname);
+
+	printf("PRG : username=%s password=%s dbname=%s\n",username,password,dbname);
+	printf("ORACLE : username=%s password=%s dbname=%s\n",myUserId.arr,myPassword.arr,myDBName.arr);
+	
+	EXEC SQL CONNECT :myUserId IDENTIFIED BY :myPassword USING :myDBName;
+	CHECK_ERROR_OR_EXIT();
+
+    EXEC SQL DECLARE C1 CURSOR FOR 
+		SELECT 'Hello, Pro*C/C++ World!' AS Message, (1/0) as toto FROM DUAL;
+    EXEC SQL OPEN C1;
+	CHECK_ERROR_OR_EXIT();
+
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+    for (;;) {
+        EXEC SQL FETCH C1 INTO :message;
+        printf("Message\n");
+        printf("-----------------------\n");
+        printf("%s\n", message);
+		break;
+    }
+    EXEC SQL CLOSE C1;
+    EXEC SQL COMMIT RELEASE;
+	printf("Fin de fonction myoracle(%s,%s,%s)\n",username,password,dbname);
+    return 0;
+}
