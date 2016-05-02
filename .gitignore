@@ -1,29 +1,17 @@
-# Object files
+# Java
+.classpath
+.project
+.settings
+target
+
+# C
 *.o
-*.ko
-*.obj
-*.elf
+*.lis
 
-# Precompiled Headers
-*.gch
-*.pch
+# Fichier temporaire du Pro*C
+tp*
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# Nom de l'éxécutable et spécifiques
+myhello
+helloworld.c
+log.txt

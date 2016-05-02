@@ -21,7 +21,6 @@ EXEC SQL INCLUDE SQLCA;
 
 void myOracleHandler(int signum) {
 	if (signum == SIGUSR1) {
-		EXEC SQL ROLLBACK;
 		exit(EXIT_FAILURE );
     }
 }
@@ -58,7 +57,7 @@ int myoracle(const char* username, const char* password, const char* dbname) {
 	CHECK_ERROR_OR_EXIT();
 
     EXEC SQL DECLARE C1 CURSOR FOR 
-		SELECT 'Hello, Pro*C/C++ World!' AS Message, (1/0) as toto FROM DUAL;
+		SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
     EXEC SQL OPEN C1;
 	CHECK_ERROR_OR_EXIT();
 
@@ -72,6 +71,5 @@ int myoracle(const char* username, const char* password, const char* dbname) {
     }
     EXEC SQL CLOSE C1;
     EXEC SQL COMMIT RELEASE;
-	printf("Fin de fonction myoracle(%s,%s,%s)\n",username,password,dbname);
     return 0;
 }

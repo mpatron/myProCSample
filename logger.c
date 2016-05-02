@@ -30,10 +30,8 @@ void log_print(char* filename, int line, char *fmt,...)
       fp = fopen ("log.txt","a+");
     else
       fp = fopen ("log.txt","w");
-    
-	char* mydate=print_time();
-    fprintf(fp,"%s ",mydate);
-	free(mydate);
+     
+    fprintf(fp,"%s ",print_time());
     va_start( list, fmt );
  
     for ( p = fmt ; *p ; ++p )

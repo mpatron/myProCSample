@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <getopt.h>
 #include <string.h>
 #include <stdbool.h>
 #include <signal.h>
 #include "hello.h"
-#include "myoracle.h"
+#include "helloworld.h"
 #include "logger.h"
 
 /* The name of this program. */
@@ -15,9 +14,6 @@ const char* program_name;
 void print_usage (FILE* stream, int exit_code) {
   fprintf (stream, "Usage:  %s options [ inputfile ... ]\n", program_name);
   fprintf (stream,
-           "  -u  --user             Oracle user. Sample : scott\n"
-           "  -p  --password         Oracle password. Sample : tiger\n"
-           "  -d  --dbname           Oracle dbname. Sample : orcl\n"
            "  -h  --help             Display this usage information.\n"
            "  -o  --output filename  Write output to file.\n"
            "  -v  --verbose          Print verbose messages.\n");
@@ -34,19 +30,7 @@ int main(int argc, char **argv) {
 	char dbname[50];
 	bool verbose = false;
 	int next_option;
-	int pipefd[2];
 	
-	if (isatty(fileno(stdin))) {
-		puts("stdin is connected to a terminal");
-	    if (pipe(pipefd) == -1) {
-			perror("pipe");
-			exit(EXIT_FAILURE);
-		}
-	} else {
-		puts("stdin is NOT connected to a terminal");
-	}
-	
-
 	/* Remember the name of the program, to incorporate in messages.
      The name is stored in argv[0].  */
 	program_name = argv[0];
@@ -129,6 +113,5 @@ int main(int argc, char **argv) {
 	} else {
 		print_usage (stderr, EXIT_FAILURE);
 	}
-	LOG_PRINT("Le programme %s est terminé.", program_name);
 	return EXIT_SUCCESS;
 }
